@@ -1,0 +1,211 @@
+import logging
+from datetime import datetime
+from collections import namedtuple
+
+
+def parse_date(s):
+    """
+    Parse a twitter date string.
+
+    :param s: A date string taken from a tweet.
+    :return: a datetime object
+    """
+    return datetime.strptime(s, "%a %b %d %H:%M:%S %z %Y")
+
+
+class _ELIDE:
+    """
+    Mark a TwitterRequest parameter is redundant even if it is required.
+    """
+
+    def __repr__(self):
+        return 'ELIDE'
+
+    def __str__(self):
+        return 'ELIDE'
+
+
+ELIDE = _ELIDE()
+
+
+class TwitterRequest:
+    """
+    A (mostly) immutable twitter request
+    """
+
+    # This is a static mapping from the request url to the Twitter API
+    # documentation URL.
+    DOC_URLS = {}
+
+    __slots__ = ('_method', '_url', '_family',
+                 '_service', '_parse_as', '_params')
+
+    def __init__(self, method, url, family, service,
+                 params=None, parse_as='json'):
+        self._method = method
+        self._url = url
+        self._family = family
+        self._service = service.upper()
+        self._parse_as = parse_as
+        if params:
+            self._params = {k: v for k, v in params.items() if v is not ELIDE}
+        else:
+            self._params = {}
+
+    @property
+    def method(self):
+        return self._method
+
+    @property
+    def url(self):
+        return self._url
+
+    @property
+    def family(self):
+        return self._family
+
+    @property
+    def service(self):
+        return self._service
+
+    @property
+    def parse_as(self):
+        return self._parse_as
+
+    @parse_as.setter
+    def parse_as(self, parse_format):
+        self._parse_as = parse_format
+
+    @property
+    def params(self):
+        return self._params
+
+    def __str__(self):
+        return "TwitterRequest(url={})".format(self._url)
+
+    def clone_and_merge(self, updated_params):
+        params = self.params.copy()
+        params.update(updated_params)
+
+        return TwitterRequest(self._method, self._url, self._family,
+                              self._service,
+                              params=params,
+                              parse_as=self._parse_as)
+
+
+class Cursor:
+    """
+    A cursor for navigating collections.
+
+    See: https://dev.twitter.com/overview/api/cursoring
+    """
+
+    def __init__(self, twitter_req):
+        self._req = twitter_req
+        self._cursor = -1
+        self._update_called = True
+
+    def update(self, resp):
+        next_cursor = resp.body.get('next_cursor')
+
+        if next_cursor is None or next_cursor == 0:
+            self._req = None
+        else:
+            self._cursor = next_cursor
+            self._req = self._req.clone_and_merge({'cursor': next_cursor})
+
+        self._update_called = True
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self._update_called:
+            raise RuntimeError("Must call update() between __next__s")
+
+        if self._req is None:
+            raise StopIteration
+
+        self._update_called = False
+        return self._req
+
+
+TwitterResponse = namedtuple('TwitterResponse', 'req resp body')
+
+
+class BrittleWitError(Exception):
+
+    @property
+    def is_retryable(self):
+        return False
+
+
+class TwitterError(BrittleWitError):
+    RETRYABLE_CODES = {500,  # INTERNAL SERVER ERROR
+                       502,  # BAD GATEWAY
+                       503,  # SERVICE UNAVAILABLE
+                       504}  # GATEWAY TIMEOUT
+
+    def __init__(self, credentials, twitter_req, http_resp, message):
+        self._credentials = credentials
+        self._twitter_req = twitter_req
+        self._http_resp = http_resp
+        self._status_code = http_resp.status
+        self._message = message
+
+    @property
+    def status_code(self):
+        return self._status_code
+
+    @property
+    def twitter_req(self):
+        return self._twitter_req
+
+    @property
+    def is_retryable(self):
+        return self._status_code in TwitterError.RETRYABLE_CODES
+
+    @property
+    def message(self):
+        return self._message
+
+    @property
+    def credentials(self):
+        return self._credentials
+
+    def __str__(self):
+        return "TwitterError(code={}, msg={})".format(self._status_code,
+                                                      self._message)
+
+    def __repr__(self):
+        return self.__str__()
+
+
+def wrap_if_nessessary(e):
+    if isinstance(e, BrittleWitError):
+        return e
+    else:
+        return WrappedException(e)
+
+
+class WrappedException(BrittleWitError):
+    RETRYABLE_EXCEPTIONS = {}
+
+    def __init__(self, underlying_exception):
+        self._underlying_exception = underlying_exception
+
+    @property
+    def underlying_exception(self):
+        return self._underlying_exception
+
+    @property
+    def is_retryable(self):
+        kind = type(self._underlying_exception)
+        return kind in WrappedException.RETRYABLE_EXCEPTIONS
+
+    def __str__(self):
+        fmt = "WrappedException({})"
+        return fmt.format(repr(self._underlying_exception))
+
+    def __repr__(self):
+        return self.__str__()

@@ -1,0 +1,5 @@
+*.pyc
+TODO
+build/
+brittle_wit_core.egg-info
+.ipynb_checkpoints
