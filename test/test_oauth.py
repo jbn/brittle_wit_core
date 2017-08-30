@@ -1,4 +1,5 @@
 import os
+import sys
 import unittest
 from test.helpers import load_fixture_txt, load_fixture_json
 from brittle_wit_core.common import TwitterRequest
@@ -16,6 +17,9 @@ from brittle_wit_core.oauth import (_generate_nonce,
                                     redirect_url,
                                     ClientCredentials,
                                     AppCredentials)
+
+
+IMMUTABLE_TEST = sys.version_info >= (3, 0)
 
 
 class TestAppCredentials(unittest.TestCase):
@@ -39,8 +43,9 @@ class TestAppCredentials(unittest.TestCase):
         self.assertEqual(str(app_1), "AppCredentials(app_1, ******)")
         self.assertEqual(repr(app_1), "AppCredentials(app_1, ******)")
 
-        with self.assertRaises(AttributeError):
-            app_1.key = 10  # Immutable(ish)
+        if IMMUTABLE_TEST:
+            with self.assertRaises(AttributeError):
+                app_1.key = 10  # Immutable(ish)
 
 
 class TestClientCredentials(unittest.TestCase):
@@ -70,8 +75,9 @@ class TestClientCredentials(unittest.TestCase):
         self.assertEqual(repr(client_1),
                          "ClientCredentials(1, token_1, ******)")
 
-        with self.assertRaises(AttributeError):
-            client_1.token = 10  # Immutable(ish)
+        if IMMUTABLE_TEST:
+            with self.assertRaises(AttributeError):
+                client_1.token = 10  # Immutable(ish)
 
         self.assertTrue(client_2 > client_1)
 
