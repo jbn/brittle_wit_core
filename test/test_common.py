@@ -1,7 +1,8 @@
 import unittest
-from unittest.mock import MagicMock
-
-from test.helpers import load_fixture_txt
+try:
+    from unittest.mock import MagicMock
+except ImportError:
+    from mock import MagicMock
 
 from brittle_wit_core.common import (TwitterError, WrappedException,
                                      parse_date,
