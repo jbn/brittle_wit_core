@@ -1,6 +1,5 @@
 import os
 import unittest
-from functools import lru_cache
 from test.helpers import load_fixture_txt, load_fixture_json
 from brittle_wit_core.common import TwitterRequest
 from brittle_wit_core.oauth import (_generate_nonce,
@@ -108,12 +107,12 @@ class TestOAuth(unittest.TestCase):
         self.assertTrue(type(_generate_timestamp()) == int)
 
     def test_generate_header_string(self):
-        params = _load_oauth_params()
+        params = load_fixture_json("oauth_params.json")
         expected = load_fixture_expectation("header_string.txt")
         self.assertEqual(_generate_header_string(params), expected)
 
     def test_generate_param_string(self):
-        params = _load_request_params()
+        params = load_fixture_json("request_params.json")
         expected = load_fixture_expectation("param_string.txt")
         self.assertEqual(_generate_param_string(params), expected)
 
@@ -149,7 +148,7 @@ class TestOAuth(unittest.TestCase):
                          expected)
 
     def test_generate_req_headers(self):
-        oauth_params = _load_oauth_params()
+        oauth_params = load_fixture_json("oauth_params.json")
 
         app = AppCredentials(oauth_params['oauth_consumer_key'],
                              "kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw")
@@ -222,17 +221,6 @@ class TestAuthFlow(unittest.TestCase):
         self.assertIn(expected_substr, headers['Authorization'])
 
 
-@lru_cache()
-def _load_oauth_params():
-    return load_fixture_json("oauth_params.json")
-
-
-@lru_cache()
-def _load_request_params():
-    return load_fixture_json("request_params.json")
-
-
-@lru_cache()
 def load_fixture_expectation(file_name):
     return load_fixture_txt(file_name)
 
