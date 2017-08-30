@@ -5,17 +5,9 @@ except ImportError:
     from mock import MagicMock
 
 from brittle_wit_core.common import (TwitterError, WrappedException,
-                                     parse_date,
                                      TwitterResponse, Cursor, BrittleWitError,
                                      ELIDE, wrap_if_nessessary, TwitterRequest)
 from brittle_wit_core.oauth import ClientCredentials
-
-
-class TestUtil(unittest.TestCase):
-
-    def test_parse_date(self):
-        s = "tue mar 29 15:40:03 +0000 2016"
-        self.assertEqual(parse_date(s).timestamp(), 1459266003.0)
 
 
 class TestBrittleWitError(unittest.TestCase):

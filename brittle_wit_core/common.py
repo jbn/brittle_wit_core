@@ -1,16 +1,5 @@
 import logging
-from datetime import datetime
 from collections import namedtuple
-
-
-def parse_date(s):
-    """
-    Parse a twitter date string.
-
-    :param s: A date string taken from a tweet.
-    :return: a datetime object
-    """
-    return datetime.strptime(s, "%a %b %d %H:%M:%S %z %Y")
 
 
 class _ELIDE:
@@ -118,6 +107,9 @@ class Cursor:
 
     def __iter__(self):
         return self
+
+    def next(self):
+        return self.__next__()
 
     def __next__(self):
         if not self._update_called:

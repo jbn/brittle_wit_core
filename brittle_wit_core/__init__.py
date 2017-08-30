@@ -8,8 +8,7 @@ __version__ = "0.0.1"
 __author__ = "John Bjorn Nelson"
 __email__ = "jbn@abreka.com"
 
-from brittle_wit_core.common import (parse_date,
-                                     ELIDE,
+from brittle_wit_core.common import (ELIDE,
                                      TwitterRequest,
                                      Cursor,
                                      TwitterResponse,
