@@ -1,6 +1,7 @@
 import json
 import os
 from collections import namedtuple
+from contextlib import contextmanager
 
 
 SELF_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -18,3 +19,11 @@ def load_fixture_json(file_name):
 
 
 MockResp = namedtuple("MockResp", "headers")
+
+
+@contextmanager
+def replace_env(**replacements):
+    original = os.environ.copy()
+    os.environ.update(replacements)
+    yield
+    os.environ = original
