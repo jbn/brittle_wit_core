@@ -19,7 +19,8 @@
 What is this?
 =============
 
-This package contains the core of ``brittle_wit``, a twitter lib for python. 
+This package contains the core of 
+[brittle_wit](https://github.com/jbn/brittle_wit), a twitter lib for python. 
 It works with Python 2.7, whereas ``brittle_wit`` does not. It's extracted from 
 the main library so that you can reuse this core code for authentication 
 flows (e.g. on GAE).
