@@ -31,7 +31,7 @@ Sample Authentication Flow with ``requests``
 
 .. code:: python
 
-    import request
+    from requests import request
     from brittle_wit_core import (AppCredentials,
                                   obtain_request_token,
                                   extract_access_token,
