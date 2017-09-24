@@ -5,6 +5,7 @@ minimally-compliant so as to conform to Twitter's requirements.
 See: https://dev.twitter.com/oauth/overview
 """
 import binascii
+import json
 import hashlib
 import hmac
 import os
@@ -97,6 +98,17 @@ class ClientCredentials:
         return ClientCredentials(os.environ['TWITTER_USER_ID'],
                                  os.environ['TWITTER_USER_TOKEN'],
                                  os.environ['TWITTER_USER_SECRET'])
+
+    @staticmethod
+    def load_many_from_json(file_path):
+        """
+        :return: a list of ClientCredential objects loaded from a json file
+        """
+        creds = []
+        with open(file_path) as fp:
+            for cred in json.load(fp):
+                creds.append(ClientCredentials.from_dict(cred))
+        return creds
 
     def __init__(self, user_id, token, secret):
         self._user_id, self._token, self._secret = user_id, token, secret

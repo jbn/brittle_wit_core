@@ -1,0 +1,12 @@
+[
+    {
+        "secret": "secret1",
+        "user_id": 1,
+        "token": "token_1"
+    },
+    {
+        "secret": "secret2",
+        "user_id": 2,
+        "token": "token_2"
+    }
+]

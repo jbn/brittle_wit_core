@@ -4,9 +4,11 @@ by Twitter's API documentation.
 
 See: https://dev.twitter.com/oauth/overview
 """
+import os
 import sys
 import unittest
-from test.helpers import load_fixture_txt, load_fixture_json, replace_env
+from test.helpers import (load_fixture_txt, load_fixture_json, replace_env,
+                          FIXTURES_DIR)
 from brittle_wit_core.common import TwitterRequest, POST
 from brittle_wit_core.oauth import (_generate_nonce,
                                     _generate_timestamp,
@@ -144,6 +146,13 @@ class TestClientCredentials(unittest.TestCase):
             self.assertEqual(client_cred.user_id, 'the user id')
             self.assertEqual(client_cred.token, 'the token')
             self.assertEqual(client_cred.secret, 'the secret')
+
+    def test_load_many_from_json(self):
+        expected = [ClientCredentials(1, "token_1", "secret1"),
+                    ClientCredentials(2, "token_2", "secret2")]
+        fixture_path = os.path.join(FIXTURES_DIR, "client_creds.json")
+        creds = ClientCredentials.load_many_from_json(fixture_path)
+        self.assertEqual(creds, expected)
 
 
 class TestOAuthHelpers(unittest.TestCase):
