@@ -66,21 +66,15 @@ class AppCredentials:
     def secret(self):
         return self._secret
 
-    def __str__(self):
-        s = "AppCredentials({}, {})"
-        return s.format(self._key, "*" * len(self._secret))
-
     def __repr__(self):
-        return self.__str__()
+        s = "AppCredentials('{}', '{}')"
+        return s.format(self._key, "*" * len(self._secret))
 
     def __hash__(self):
         return hash((self._key, self._secret))
 
     def __eq__(self, other):
-        return self.key == self.key and self.secret == other.secret
-
-    def __ne__(self, other):
-        return not self == other
+        return self._key == other._key and self._secret == other._secret
 
 
 @total_ordering
@@ -135,21 +129,15 @@ class ClientCredentials:
     def from_dict(d):
         return ClientCredentials(d['user_id'], d['token'], d['secret'])
 
-    def __str__(self):
-        s = "ClientCredentials({}, {}, {})"
+    def __repr__(self):
+        s = "ClientCredentials({}, '{}', '{}')"
         return s.format(self.user_id, self._token, "*" * len(self._secret))
 
-    def __repr__(self):
-        return self.__str__()
-
     def __hash__(self):
-        return hash(self._user_id)
+        return hash("ClientCredentials({})".format(self._user_id))
 
     def __eq__(self, other):
         return self.user_id == other.user_id
-
-    def __ne__(self, other):
-        return not self == other
 
     def __lt__(self, other):
         return self.user_id < other.user_id

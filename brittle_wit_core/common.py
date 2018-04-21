@@ -276,11 +276,9 @@ class WrappedException(BrittleWitError):
         kind = type(self._underlying_exception)
         return kind in WrappedException.RETRYABLE_EXCEPTIONS
 
-    def __str__(self):
+    def __repr__(self):
         fmt = "WrappedException({})"
         return fmt.format(repr(self._underlying_exception))
 
-    def __repr__(self):
-        return self.__str__()
-
-
+    def __str__(self):
+        return repr(self)

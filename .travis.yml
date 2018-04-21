@@ -1,13 +1,12 @@
 language: python
 python:
   - "2.7"
-  - "3.3"
   - "3.4"
   - "3.5"
   - "3.5-dev" # 3.5 development branch
   - "nightly" # currently points to 3.6-dev
 install:
-  - "pip install coveralls nose"
+  - "pip install -r requirements-dev.txt"
   - "pip install -r requirements.txt"
-script: coverage run --source=brittle_wit_core setup.py nosetests
+script: pytest --cov=brittle_wit_core
 after_success: coveralls
