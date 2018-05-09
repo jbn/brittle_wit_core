@@ -41,8 +41,8 @@ class TwitterRequest:
     # documentation URL.
     DOC_URLS = {}
 
-    __slots__ = ('_method', '_url', '_family',
-                 '_service', '_parse_as', '_params')
+    __slots__ = ('_method', '_url', '_family', '_service', '_parse_as',
+                 '_params', '__weakref__')
 
     def __init__(self, method, url, family, service,
                  params=None, parse_as='json'):
